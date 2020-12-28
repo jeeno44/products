@@ -19,11 +19,6 @@ class CreateTableProducts extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-            // связка с таблицей категории
-            $table->bigInteger("categories_id")->index()->unsigned()->nullable(false);
-            // связка с таблицей категории
-            $table->foreign('categories_id')->references('id')->on('categories');
-
             // Имя продукта
             $table->string("name_product")->nullable(false);
 
@@ -49,6 +44,6 @@ class CreateTableProducts extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('table_products');
+        Schema::dropIfExists('products');
     }
 }
