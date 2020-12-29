@@ -138,13 +138,18 @@ Route::group(['prefix' => 'api'],function (){
 //                $dels = $categorie[0];
 //                $products = $dels->Products()->name_product;
 
-                $cats = Categorie::all();
+//                $cats = Categorie::all();
 
-                foreach ($cats as $cat) {
+                $category = Categorie::where(["id" => "3"])->first();
+                $products = Product::all();
+
+                dump(count($category->Products));
+                dump($products[0]);
+                /*foreach ($categorie as $cat) {
 
                     dump($cat->PProducts()->id);
 
-                }
+                }*/
 
             }
 

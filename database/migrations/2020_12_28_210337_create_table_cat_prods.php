@@ -21,6 +21,7 @@ class CreateTableCatProds extends Migration
             $table->foreign('product_id')->references('id')->on('products');
             $table->timestamp("created_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp("updated_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->unique(['categories_id','product_id']);
         });
     }
 
