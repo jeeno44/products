@@ -13,7 +13,8 @@ class Cat_prod extends Model
 
     protected $fillable = [
         "categories_id",
-        "product_id"
+        "product_id",
+        "deleted"
     ];
 
 

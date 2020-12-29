@@ -25,6 +25,8 @@ class CreateTableProducts extends Migration
             // Цена продукта
             $table->integer("price")->nullable(false); // Цена продукта
 
+            $table->unique(["name_product","price"]);
+
             // Показывается ли продукт (по умолчанию показывается)
             $table->smallInteger("show")->nullable(false)->default(1);
 

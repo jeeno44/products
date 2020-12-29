@@ -11,7 +11,7 @@ class Categorie extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name_categories'];
+    protected $fillable = ['name_categories','deleted'];
 
     public function Products ()
     {
