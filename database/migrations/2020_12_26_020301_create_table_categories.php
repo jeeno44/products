@@ -23,6 +23,9 @@ class CreateTableCategories extends Migration
             // Имя категории
             $table->string("name_categories")->nullable(false)->unique("name");
 
+            // Удалена ли категория (по умолчанию не удалена (0))
+            $table->string("deleted")->nullable(false)->default(0);
+
             // Timestamp
             $table->timestamp("created_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp("updated_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));

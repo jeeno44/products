@@ -19,6 +19,7 @@ class CreateTableCatProds extends Migration
             $table->foreign('categories_id')->references('id')->on('categories');
             $table->bigInteger("product_id")->index()->unsigned()->nullable(false);
             $table->foreign('product_id')->references('id')->on('products');
+            $table->integer("deleted")->default(0);
             $table->timestamp("created_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp("updated_at")->nullable(false)->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->unique(['categories_id','product_id']);
