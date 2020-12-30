@@ -18,13 +18,13 @@ class Cat_prod extends Model
     ];
 
 
-    public function Categories ()
+    public function Products ()
     {
         return $this->belongsTo(Product::class,'product_id','id');
     }
 
 
-    public function Products()
+    public function Categories()
     {
         return $this->belongsTo(Categorie::class,'categories_id','id');
     }

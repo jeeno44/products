@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ProductsController;
 use App\Models\Categorie;
 use App\Models\Product;
 use App\Models\Cat_prod;
@@ -27,137 +28,108 @@ Route::group(['prefix' => '/'],function (){
 
 Route::group(['prefix' => 'api'],function (){
 
+    // Группа категорий
     Route::group(['prefix' => 'categories'],function (){
 
+        // Показать все категорий
+        // Показать конкретную категорию по id пример show/2
         Route::get('show/{id?}', [CategoriesController::class,"getAll"]);
 
+        // Создание категории
+        // http://localhost:8000/api/categories/create/{name}
+        // где name - имя категории
         Route::post('create/{name}', [CategoriesController::class,"createCategorie"]);
 
+        // Обновление категории
+        // http://localhost:8000/api/categories/update/{id}/{name}
+        // где
+        //      id идентификатор категории
+        //      name имя категории
         Route::patch('update/{id}/{name}', [CategoriesController::class,"updateCategorie"]);
 
+        // Удаление категрии
+        // http://localhost:8000/api/categories/delete/{id}
+        // где id идентификатор категории
+        // категория не удаляется, а помечается как удалённая
         Route::delete('delete/{id}', [CategoriesController::class,"deleteCategorie"]);
 
     });
-
+    // Группа товаров
     Route::group(['prefix' => 'products'],function (){
+        // Выборка товаров (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/show/{id?}
+        // где id - необязательный параметр
+        // если параметра id нет, то показываются все неудалённые товары, то есть с парметром deleted = 0
+        // если параметр id есть, то показывается записть с этим id, если запись не удалена, то есть у записи deleted = 0
+        // в противном случае запись не будет найдена
+        Route::get('show/{id?}',[ProductsController::class,"getAll"]);
 
-        Route::post('create/{categorie}/{name}/{price}/{show?}/{deleted?}',function ($categorie,$name,$price,$show = null,$deleted = null){
+        // Выборка товаров по имени (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/name/{name?}
+        // где
+        //    name - имя товара (обязательный параметр)
+        // под совпадении попадут любые товары с ключевым словом {name} и если запись не удалена
+        // в противном случае запись не будет найдена
+        Route::get('name/{name}',[ProductsController::class,"getByName"]);
 
-            $categories = array_unique(explode(",",$categorie));
+        // Выборка товаров по имени категории (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/category/{category}
+        // где
+        //    category - имя категории (обязательный параметр)
+        // под совпадении выведутся все товары этой категории
+        // если у категории нет товаром, то выведется сообщение об отсутствии товаров данной категории
+        Route::get('category/{category}',[ProductsController::class,"getByCategory"]);
 
-            function checkCategorie($array)
-            {
-                $categories = Categorie::where(["deleted" => 0])->get(['id']);
-                $categories = $categories->toArray();
+        // Выборка товаров по цене товаров (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/price/{price}
+        // где
+        //    price - диапазон цен товаров через дефис (обязательный параметр) прим 200-500
+        // под совпадении выведутся все товары попадающие в этот диапазон
+        Route::get('price/{price}',[ProductsController::class,"getByPrice"]);
 
-                $newCategories = [];
+        // Выборка товаров по статусу публикации товаров (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/publish/{publish}
+        // где
+        //    publish - необязательный параметр (1 или 0)
+        // если параметра publish нет то выведутся все товары
+        // если publish = 1 выведутся все опубликованные товары
+        // если publish = 0 выведутся все неопубликованные товары
+        Route::get('publish/{publish?}',[ProductsController::class,"getByPublish"]);
 
-                foreach ($categories as $category) {
-                    $newCategories[] = $category['id'];
-                }
+        // Выборка товаров по статусу удаления товаров (Выполняетеся методом GET)
+        // http://localhost:8000/api/products/deleted/{deleted}
+        // где
+        //    deleted - необязательный параметр (1 или 0)
+        // если параметра deleted нет то выведутся все товары
+        // если deleted = 1 выведутся все удалённые товары
+        // если deleted = 0 выведутся все не удалённые товары
+        Route::get('deleted/{deleted?}',[ProductsController::class,"getByDeleted"]);
 
-                $resultArray = [];
+        // Создание товара (Выполняетеся методом POST)
+        // http://localhost:8000/api/products/create/{categories}/{name}/{price}/{show?}/{deleted?}
+        // где
+        //      {categories} - категории товара через запятую (1,2,3 и т.д.)
+        //      {name} - имя товара
+        //      {price} - цена товара
+        //      {show?} - необязательный параметр "опубликовано" (по умолчанию = 1 опубликовано)
+        //      {deleted?} - необязательный параметр "удалено" (по умолчанию = 0 не удалено)
+        Route::post('create/{categories}/{name}/{price}/{show?}/{deleted?}',[ProductsController::class,"createProduct"]);
 
-                foreach ($array as $arr) {
-                    if (in_array($arr,$newCategories)){ $resultArray[] = "YES"; }
-                    else{ $resultArray[] = "NO"; }
-                }
+        // Обновление товара (Выполняетеся методом PATCH)
+        // http://localhost:8000/api/products/update/{id}/{name}/{price}/{show?}/{deleted?}
+        // где
+        //      {id} - идентификатор товара
+        //      {name} - имя товара
+        //      {price} - цена товара
+        //      {show?} - необязательный параметр "опубликовано" (по умолчанию = 1 опубликовано)
+        //      {deleted?} - необязательный параметр "удалено" (по умолчанию = 0 не удалено)
+        Route::patch('update/{id}/{name}/{price}/{show?}/{deleted?}',[ProductsController::class,'updateProduct']);
 
-                if (in_array("NO",$resultArray)){ return false; }
-                else{ return true; }
-            }
-
-            if (count($categories) < 2){
-                return "У вас недостаточно категорий (минимальное число - 2)";
-            }
-            elseif (count($categories) > 10){
-                return "У вас слишком много категорий (максимальное число - 10)";
-            }
-            elseif (!checkCategorie($categories)){
-                return "У вас ошибка в списке категорий, проверте правильность ввода";
-            }
-            else{
-
-                $find = Product::where([
-                    ["name_product", "=",$name],
-                    ["price","=",$price],
-                    ])->get();
-
-                if (count($find) > 0){
-                    return "Запись уже существует, измените данные";
-                }
-                else{
-
-                    Product::create([
-                        "name_product"  => $name,
-                        "price"         => $price,
-                        "show"          => ($show == null) ? 1 : 0,
-                        "deleted"       => ($deleted == null) ? 0 : 1,
-                    ]);
-
-                    $lastProduct = Product::orderBy("id","DESC")->first()->id;
-
-                    foreach ($categories as $category) {
-                        Cat_prod::create([
-                            "categories_id" => $category,
-                            "product_id"    => $lastProduct
-                        ]);
-                    }
-
-                    return "Товар успешно добавлен";
-                }
-
-            }
-
-        });
-
-        Route::patch('update/{id}/{name}/{price}/{show?}/{deleted?}',function ($id,$name,$price,$show = null,$deleted = null){
-
-            $product = Product::where([
-                ["id","=",$id,],
-                ["deleted","=","0",],
-            ])->get();
-
-            if (count($product) > 0){
-
-                $product = $product[0];
-
-                $product->name_product  = $name;
-                $product->price         = $price;
-                $product->show          = ($show == null || $deleted == 1) ? 1 : 0 ;
-                $product->deleted       = ($deleted == null || $deleted == 0) ? 0 : 1 ; Cat_prod::where("product_id",$id)->update(['deleted' => 1]);
-                $product->save();
-
-                return "Товар обновлён";
-            }
-            else{
-                return "Товар не найден";
-            }
-
-        });
-
-        Route::delete('delete/{id}',function ($id){
-
-            $product = Product::where([
-                ["id","=",$id],
-                ["deleted","=",0],
-            ])->get();
-
-            if (count($product) > 0){
-
-                $product = $product[0];
-
-                $product->deleted = 1; Cat_prod::where("product_id",$id)->update(['deleted' => 1]);
-                $product->save();
-
-                return "Товар удалён";
-
-            }
-            else{
-                return "Товар не найден";
-            }
-
-        });
+        // Удаление товара (Выполняетеся методом DELETE)
+        // http://localhost:8000/api/products/delete/{id}
+        // где
+        //      {id} - идентификатор товара (товар не удаляется из базы, а только помечается как удалённый)
+        Route::delete('delete/{id}',[ProductsController::class,"deleteProduct"]);
 
     });
 

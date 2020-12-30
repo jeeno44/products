@@ -25,7 +25,7 @@ class CategoriesController extends Controller
                 return "Категория не найдена";
             }
             else{
-                return $categorie->toJson();
+                return $categorie[0]->toJson();
             }
         }
     }
