@@ -43,7 +43,6 @@ Route::group(['prefix' => 'api'],function (){
 
         Route::post('create/{categorie}/{name}/{price}/{show?}/{deleted?}',function ($categorie,$name,$price,$show = null,$deleted = null){
 
-//            return ""."[ИМЯ] ".$name." - [ЦЕНА] ".$price;
             $categories = array_unique(explode(",",$categorie));
 
             function checkCategorie($array)
@@ -79,24 +78,83 @@ Route::group(['prefix' => 'api'],function (){
             }
             else{
 
-                Product::create([
-                    "name_product"  => $name,
-                    "price"         => $price,
-                    "show"          => ($show == null) ? 0 : 1,
-                    "deleted"       => ($deleted == null) ? 0 : 1,
-                ]);
+                $find = Product::where([
+                    ["name_product", "=",$name],
+                    ["price","=",$price],
+                    ])->get();
 
-                $lastProduct = Product::orderBy("id","DESC")->first()->id;
+                if (count($find) > 0){
+                    return "Запись уже существует, измените данные";
+                }
+                else{
 
-                foreach ($categories as $category) {
-                    Cat_prod::create([
-                        "categories_id" => $category,
-                        "product_id"    => $lastProduct
+                    Product::create([
+                        "name_product"  => $name,
+                        "price"         => $price,
+                        "show"          => ($show == null) ? 1 : 0,
+                        "deleted"       => ($deleted == null) ? 0 : 1,
                     ]);
+
+                    $lastProduct = Product::orderBy("id","DESC")->first()->id;
+
+                    foreach ($categories as $category) {
+                        Cat_prod::create([
+                            "categories_id" => $category,
+                            "product_id"    => $lastProduct
+                        ]);
+                    }
+
+                    return "Товар успешно добавлен";
                 }
 
-//                return implode(",",$categories)." [NAME]".$name." ($lastProduct) - [PRICE] ".$price;
-                return "Товар успешно добавлен";
+            }
+
+        });
+
+        Route::patch('update/{id}/{name}/{price}/{show?}/{deleted?}',function ($id,$name,$price,$show = null,$deleted = null){
+
+            $product = Product::where([
+                ["id","=",$id,],
+                ["deleted","=","0",],
+            ])->get();
+
+            if (count($product) > 0){
+
+                $product = $product[0];
+
+                $product->name_product  = $name;
+                $product->price         = $price;
+                $product->show          = ($show == null || $deleted == 1) ? 1 : 0 ;
+                $product->deleted       = ($deleted == null || $deleted == 0) ? 0 : 1 ; Cat_prod::where("product_id",$id)->update(['deleted' => 1]);
+                $product->save();
+
+                return "Товар обновлён";
+            }
+            else{
+                return "Товар не найден";
+            }
+
+        });
+
+        Route::delete('delete/{id}',function ($id){
+
+            $product = Product::where([
+                ["id","=",$id],
+                ["deleted","=",0],
+            ])->get();
+
+            if (count($product) > 0){
+
+                $product = $product[0];
+
+                $product->deleted = 1; Cat_prod::where("product_id",$id)->update(['deleted' => 1]);
+                $product->save();
+
+                return "Товар удалён";
+
+            }
+            else{
+                return "Товар не найден";
             }
 
         });

@@ -18,5 +18,7 @@ class VerifyCsrfToken extends Middleware
         'api/categories/update/*',
         'api/categories/delete/*',
         'api/products/create/*',
+        'api/products/update/*',
+        'api/products/delete/*',
     ];
 }
