@@ -4,9 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductsController;
-use App\Models\Categorie;
-use App\Models\Product;
-use App\Models\Cat_prod;
 
 /*
 |--------------------------------------------------------------------------

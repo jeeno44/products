@@ -1,0 +1,66 @@
+Инструкция по установке
+
+0) зайти в папку с проктом и склонировать проект
+    git clone git@github.com:jeeno44/products.git
+
+1) выполнить команду composer update
+2) выполнить настройки для своей базы данных в файле .env
+   mysql db - ваша база данных (у меня база называется products)
+   mysql user - root
+   mysql password - password
+3) выполнить миграции командой php artisan migrate
+4) выполнить посев данных командой php artisan db:seed
+5) запусть встроенный сервер командой php artisan serve
+
+6) список доступных запросов приведён ниже
+   также есть документация в файле /project/routes/web.php
+
+СПИСОК ЗАПРОСОВ (ПРИМЕРЫ)
+
+                      # Манипуляции с категориями
+
+# Показать все категории (все неудалённые, то есть с параметром deleted = 0) (Выполняетеся методом GET)
+#GET http://localhost:8000/api/categories/show
+
+# Показать конкретную категорию по идентификатору (если у неё стоит параметр deleted = 0, в противном случае она будет недоступна) (Выполняетеся методом GET)
+#GET http://localhost:8000/api/categories/show/5
+
+# Создание категории (Выполняетеся методом POST)
+#POST http://localhost:8000/api/categories/create/пятая категория
+
+# Редактирование категории (Выполняетеся методом PATCH)
+#PATCH http://localhost:8000/api/categories/update/5/пятая категория
+
+# Удаление категории (Выполняетеся методом DELETE)
+#DELETE http://localhost:8000/api/categories/delete/5
+
+                     # Манипуляции с товарами
+
+# Получение товаров (Всех и по id) (Выполняетеся методом GET)
+#GET http://localhost:8000/api/products/show/7
+
+# Получение товаров (По имени) by name (Выполняетеся методом GET)
+#GET http://localhost:8000/api/products/name/milk
+
+# Получение товаров (По категории) by category (Выполняетеся методом GET)
+#GET http://localhost:8000/api/products/category/sun
+
+# Получение товаров (По цене) by price (Выполняетеся методом GET)
+#GET http://localhost:8000/api/products/price/400-600
+
+# Получение товаров (По статусу публикации) by publish (Выполняетеся методом GET)
+# строка без указания конкретного статуса (Опубликовано (1) или не опубликовано (0)) вернёт все заказы
+#GET http://localhost:8000/api/products/publish/0
+
+# Получение товаров (По статусу удаления) by deleted (Выполняетеся методом GET)
+# строка без указания конкретного статуса (Удалено (1) или не удалено (0)) вернёт все заказы
+#GET http://localhost:8000/api/products/deleted/0
+
+# Создание товара (Выполняетеся методом POST)
+#POST http://localhost:8000/api/products/create/1,6/milk/100/1/0
+
+# Редактирование товара (Выполняетеся методом PATCH)
+#PATCH http://localhost:8000/api/products/update/4/колбаса/200/1/0
+
+# Удаление товара (Выполняетеся методом DELETE)
+#DELETE http://localhost:8000/api/products/delete/6
